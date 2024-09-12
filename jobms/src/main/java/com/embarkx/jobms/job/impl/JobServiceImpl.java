@@ -6,15 +6,19 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
-
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import com.embarkx.jobms.job.Job;
 import com.embarkx.jobms.job.JobRepository;
 import com.embarkx.jobms.job.JobService;
-import com.embarkx.jobms.job.dto.JobWithCompanyDTO;
+import com.embarkx.jobms.job.dto.JobDTO;
 import com.embarkx.jobms.job.external.Company;
+import com.embarkx.jobms.job.external.Review;
+import com.embarkx.jobms.job.mapper.JobMapper;
 
 @Service
 public class JobServiceImpl implements JobService {
@@ -31,19 +35,26 @@ public class JobServiceImpl implements JobService {
 	RestTemplate restTemplate; 
 	
 	@Override
-	public List<JobWithCompanyDTO> findAll() {
+	public List<JobDTO> findAll() {
 
 		List<Job> jobs = jr.findAll();
 		return jobs.stream().map(this::convertToDTO).collect(Collectors.toList());
 	}
 
-	private JobWithCompanyDTO convertToDTO(Job job) {
-		JobWithCompanyDTO jwc = new JobWithCompanyDTO();
+	private JobDTO convertToDTO(Job job) {
+		 
 		System.out.println("get conp ID"+job.getCompanyId());
 		Company com = restTemplate.getForObject("http://company-service:8081/companies/" + job.getCompanyId(), Company.class);
-		jwc.setJob(job);
-		jwc.setCompany(com);                  
-		return jwc;
+		
+		ResponseEntity<List<Review>> reviewResponse = restTemplate.exchange("http://review-service:8083/reviews?companyId=" + job.getCompanyId(), 
+				HttpMethod.GET,
+				null, 
+				new ParameterizedTypeReference<List<Review>>() {
+		});
+		
+		List<Review> reviews = reviewResponse.getBody();
+		JobDTO jto = JobMapper.jobWithCompanyDTOMap(job, com, reviews);                
+		return jto;
 	}
 
 	@Override
@@ -56,7 +67,7 @@ public class JobServiceImpl implements JobService {
 	}
 
 	@Override
-	public JobWithCompanyDTO getJobById(Long id) {
+	public JobDTO getJobById(Long id) {
 		Job job= jr.findById(id).orElse(null);
 		return convertToDTO(job);
 	}
