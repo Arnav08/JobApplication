@@ -1,5 +1,6 @@
 package com.embarkx.jobms.job.impl;
 
+import java.util.ArrayList;
 import java.util.List;
  
 import java.util.Optional;
@@ -19,6 +20,10 @@ import com.embarkx.jobms.job.external.Company;
 import com.embarkx.jobms.job.external.Review;
 import com.embarkx.jobms.job.mapper.JobMapper;
 
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
+import io.github.resilience4j.retry.annotation.Retry;
+
 @Service
 public class JobServiceImpl implements JobService {
 	
@@ -36,15 +41,26 @@ public class JobServiceImpl implements JobService {
 		this.reviewClient = reviewClient;
 	}
 
-
+   int x=0;
 	
 	@Override
+	//@CircuitBreaker(name = "companyBreaker", fallbackMethod = "companyBreakerFallback")
+//	@Retry(name = "companyBreaker", fallbackMethod = "companyBreakerFallback")
+	@RateLimiter(name = "companyBreaker", fallbackMethod = "companyBreakerFallback")
 	public List<JobDTO> findAll() {
-
+        System.out.println("Attempts:" + ++x);
+        
 		List<Job> jobs = jr.findAll();
 		return jobs.stream().map(this::convertToDTO).collect(Collectors.toList());
 	}
 
+	public List<String> companyBreakerFallback(Exception e){
+		List<String> list = new ArrayList<>();
+		list.add("Dummy");
+		return list;
+		
+		
+	}
 	private JobDTO convertToDTO(Job job) {
 		 
 		System.out.println("get conp ID"+job.getCompanyId());
