@@ -5,19 +5,24 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
+import com.embarkx.companyms.clients.ReviewClient;
 import com.embarkx.companyms.company.Company;
 import com.embarkx.companyms.company.CompanyRepository;
 import com.embarkx.companyms.company.CompanyService;
+import com.embarkx.companyms.dto.ReviewMessage;
 
+import jakarta.ws.rs.NotFoundException;
 
 @Service
 public class CompanyServiceImpl implements CompanyService {
 
 	private CompanyRepository compRepo;
+	private ReviewClient reviewClient;
 
-	public CompanyServiceImpl(CompanyRepository compRepo) {
+	public CompanyServiceImpl(CompanyRepository compRepo, ReviewClient reviewClient) {
 		super();
 		this.compRepo = compRepo;
+		this.reviewClient = reviewClient;
 	}
 
 	@Override
@@ -60,6 +65,17 @@ public class CompanyServiceImpl implements CompanyService {
 	public Company getCompanyById(Long id) {
 		Company compId = compRepo.findById(id).orElse(null);
 		return compId;
+	}
+
+	@Override
+	public void updateCompanyRating(ReviewMessage reviewMessage) {
+		System.out.println(reviewMessage.getDescription());
+		Company company = compRepo.findById(reviewMessage.getCompany())
+				.orElseThrow(() -> new NotFoundException("Company not Found" + reviewMessage.getCompany()));
+		Double avarageRating = reviewClient.getAvarageRatingForCompany(reviewMessage.getCompany());
+		company.setRating(avarageRating);
+		compRepo.save(company);
+
 	}
 
 }

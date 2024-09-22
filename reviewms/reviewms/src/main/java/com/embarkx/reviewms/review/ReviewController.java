@@ -10,6 +10,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.embarkx.reviewms.messaging.ReviewMessageProducer;
+
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -19,10 +22,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 public class ReviewController {
 
 	private ReviewService rs;
+	private ReviewMessageProducer reviewMsgProducer;
+	
 
-	public ReviewController(ReviewService rs) {
+	public ReviewController(ReviewService rs, ReviewMessageProducer reviewMessageProducer) {
 		super();
 		this.rs = rs;
+		this.reviewMsgProducer=reviewMessageProducer;
 	}
 
 	@GetMapping
@@ -32,10 +38,12 @@ public class ReviewController {
 
 	@PostMapping
 	public ResponseEntity<String> addReviews(@RequestParam Long companyId, @RequestBody Review Review) {
-		if (rs.addReview(companyId, Review))
+		if (rs.addReview(companyId, Review)) {
+			reviewMsgProducer.sendMessage(Review);
 			return new ResponseEntity<>("Review Added Successfully !", HttpStatus.OK);
-		else
+		}else {
 			return new ResponseEntity<>("Review not saved !", HttpStatus.NOT_FOUND);
+		}
 	}
 
 	@GetMapping("/{reviewId}")
@@ -68,8 +76,12 @@ public class ReviewController {
 		}else {
 			return new ResponseEntity<>("Review Failed to delete", HttpStatus.NOT_FOUND);	
 		}
-		
-
+	}
+	
+	@GetMapping("/avarageRating")
+	public Double getAvarageCompRating(@RequestParam Long compId) {
+		List<Review> reviewList = rs.getAllReview(compId);
+		return reviewList.stream().mapToDouble(Review::getRating).average().orElse(0.0);
 	}
 	
 	
