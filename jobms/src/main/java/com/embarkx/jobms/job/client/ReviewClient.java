@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import com.embarkx.jobms.job.external.Review;
 
-@FeignClient(name = "review-service")
+@FeignClient(name = "review-service", url = "${review-service.url}")
 public interface ReviewClient {
 
 	@GetMapping("/reviews")

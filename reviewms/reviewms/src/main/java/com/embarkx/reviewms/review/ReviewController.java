@@ -78,9 +78,9 @@ public class ReviewController {
 		}
 	}
 	
-	@GetMapping("/avarageRating")
-	public Double getAvarageCompRating(@RequestParam Long compId) {
-		List<Review> reviewList = rs.getAllReview(compId);
+	@GetMapping("/averageRating")
+	public Double getAverageCompRating(@RequestParam Long companyId) {
+		List<Review> reviewList = rs.getAllReview(companyId);
 		return reviewList.stream().mapToDouble(Review::getRating).average().orElse(0.0);
 	}
 	
