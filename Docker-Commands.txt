@@ -1,0 +1,158 @@
+1. Clear: docker system prune -af
+2. docker ps -a ( all conainter list)
+ 2.1   docker ps ( only current running container)
+3. docker run -it ubuntu ( interactive terminal mode) 
+4. docker start -ia <<containerID>> (interactive attach)
+5. docker stop <<container ID OR container name)
+6. docker run -it -v c:/cd/cd:/a/b/c ubuntu ( volumn mapping)
+7. docker run -d --name=c1 nginx ( run into detached mode with c1 name )
+8. docker exec -it c1 bash ( docker execute in interactive mode and retunr hte bash terminal)
+9. docker run -p 80:80 -v E:\sharedwithdocker:/usr/share/nginx/html nginx
+10. docker inspect <<nginx(name of the container>>  ( to ping the other container)
+11. docker network create dummy
+12. docker network ls
+13. docker run --name=nginx --network=dummy nginx
+14. docker build -t my-hello-world E:\first_project
+15. uname -m ( to get the version of java download compatible to OS)
+16. apt-get update  ( update the image with more functionality)
+17. apt-get install curl -y  ( here y means you are giving Yes command to continue at run time)
+18. curl https://download.java.net/java/GA/jdk17.0.1/2a2082e5a09d4267845be086888add4f/12/GPL/openjdk-17.0.1_linux-x64_bin.tar.gz --output java17.tar.gz
+19. tar -xvzf java17.tar.gz
+20. export PATH=$PATH:/jdk-17.0.1/bin  (Set the class path in path var)
+21. docker build -t my-java17  ( -t is for tag name)
+22. docker run -e input=4 my-table  ( here passing input value = 4 to the program)
+23. docker tag my-table ashutoshd2/my-table  (before pushing image into our repository)
+24. docker push ashutoshd2/my-java17
+25. docker network ls
+26. docker-compose -f nginx.yml up ( this command will UP the yml compose file , (if default file docker-compose.yml (default) is not availabe
+27. >docker-compose logs
+28.
+
+-------------------------------------------------------------------------------------------
+
+1.  docker container run --publish 80:80 nginx
+2.  docker container run  -d --publish 80:80 --name webhost  nginx
+3.  docker container logs webhost<nameof the proeces)
+4.  docker container top webhost(running top list processes)
+5.  docker container rm -f 6e b9 85 03 ( clear all the process forcefully)
+6.  docker start mongo
+7.  docker container run -d -p 3306:3306 --name db  -e MYSQL_RANDOM_ROOT_PASSWORD=yes mysql
+8.  docker container logs db  (pwd uqxG5w0eHMON8XP0uZPN5g1HT+Sa0M/Z)
+9.  docker container run -d -p 8080:80 --name webserver httpd
+10. docker container run -d -p 80:80 --name proxy nginx
+11. curl localhost:80
+12. curl localhost:8080
+13. docker container inspect mysql
+14. docker container stats
+15. docker container run -it --name proxy nginx bash ( -it combine 2 options i for interactive and t for tty)
+16. apt-get install -y curl ( -y option is to provide YES input at run time)
+17. docker container start -ai ubuntu ( to run the existing img)
+18. The "docker run" command creates and starts a new container from an image, while the "docker exec" command interacts with an already running container
+19. docker container run -p 80:80 --name webhost -d nginx
+20. docker container port webhost
+21. docker container inspect --format '{{ .NetworkSettings.IPAddress}}' webhost   ( to know the IP address of the running container)
+22. docker network ls
+23. docker network inspect bridge  ( list all the container for this bridge network)
+24. docker network create ay_app_net
+25. docker container run -d --name new1_nginx --network ay_app_net nginx   ( to run the container on my new created network)
+26. docker network inspect ay_app_net
+27. With --rm , the container will automatically remove when it exit
+28. docker container run --rm -it centos:7 bash
+29. docker container run -d --name mysql3 -v mysql-vol:/var/lib/mysql  -e MYSQL_ALLOW_EMPTY_PASSWORD=True mysql
+30. docker container run  -d --name nginx-my -p 80:80 -v $(pwd)/usr/share/nginx/html nginx
+
+-----------------------------------------------------------------------------------------------
+
+
+1. docker swarm init
+2. docker swarm --help
+3. docker service create alpine ping 8.8.8.8
+4. docker service ls
+5. docker service ps <<blissful_fermi>>
+6. docker service update h6wdsqflgf0a --replicas 3
+7. docker container rm -f blissful_fermi.1.7a67yyhi88hjbzbc70afqtxcs
+
+--------------------------------------------------------------------------------------------------
+
+Kubernates:
+
+using minikube:
+1. minikube start
+2. kubectl apply -f first-pod.yml
+3. kubectl get pods
+
+
+Create Default Cluster:
+#Service:1
+1. kubectl create deployment httpenv --image=bretfisher/httpenv
+2. kubectl scale deployment/httpenv --replicas=5
+3. kubectl expose deployment/httpenv --port 8888
+4. kubectl get service
+5. kubectl run tmp-shell --rm -it --image bretfisher/netshoot --bash
+6. curl httpenv:8888
+7. kubectl get all
+#2: NodeService:
+8. kubectl expose deployment/httpenv --port 8888 --name httpenv-np --type NodePort
+9. kubectl expose deployment/httpenv --port 8888 --name httpenv-np --type NodePort
+
+C:\Users\Arnav>kubectl get service
+NAME         TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)          AGE
+httpenv      ClusterIP   10.101.29.251   <none>        8888/TCP         15m
+httpenv-np   NodePort    10.109.171.26   <none>        8888:32454/TCP   72s
+kubernetes   ClusterIP   10.96.0.1       <none>        443/TCP          2d
+
+10.  curl localhost:32454
+#3. LoadBalancer
+11. kubectl expose deployment/httpenv --port 8888 --name httpenv-lb --type LoadBalancer
+
+C:\Users\Arnav>kubectl get service
+NAME         TYPE           CLUSTER-IP      EXTERNAL-IP   PORT(S)          AGE
+httpenv      ClusterIP      10.101.29.251   <none>        8888/TCP         32m
+httpenv-lb   LoadBalancer   10.107.65.57    localhost     8888:30366/TCP   18s
+httpenv-np   NodePort       10.109.171.26   <none>        8888:32454/TCP   17m
+kubernetes   ClusterIP      10.96.0.1       <none>        443/TCP          2d
+
+12. kubectl delete service/httpenv service/httpenv-np
+13. kubectl delete service/httpenv-lb deployment/httpenv
+
+
+------------------------------------------------------------------------------------------------------
+inter service communications:
+1. asynchronous : Rabbmit MQ, Apache Kafka, SQS, simple queuing servers (on AWS)
+2. Synchronous: restTemplate: HTTP protocol ( spring class)
+
+1. mvn spring-boot:build-image "-Dspring-boot.build-image.imageName=ashutoshd2/jobappimg"
+1. docker network create my-network
+2. docker run -d --name db --network my-network -e POSTGRES_PASSWORD=embarkx postgres
+3. docker run -d --name pgadmin --network my-network -e PGADMIN_DEFAULT_EMAIL=admin@admin.com -e PGADMIN_DEFAULT_PASSWORD=embarkx dpage/pgadmin4
+4. docker exec -it pgadmin ping db
+
+
+.\mvnw spring-boot:build-image "-Dspring-boot.build-image.imageName=ashutoshd2/servicereg"
+.\mvnw spring-boot:build-image "-Dspring-boot.build-image.imageName=ashutoshd2/jobms"
+.\mvnw spring-boot:build-image "-Dspring-boot.build-image.imageName=ashutoshd2/companyms"
+.\mvnw spring-boot:build-image "-Dspring-boot.build-image.imageName=ashutoshd2/reviewms"
+.\mvnw spring-boot:build-image "-Dspring-boot.build-image.imageName=ashutoshd2/config-service-ms"
+.\mvnw spring-boot:build-image "-Dspring-boot.build-image.imageName=ashutoshd2/gateway-ms"
+
+
+
+ 
+ ✔ Network companyms_microservice-network  Created                                                                 0.2s
+ ✔ Container rabbitmq                      Started                                                                 2.5s
+ ✔ Container zipkin                        Started                                                                 2.5s
+ ✔ Container pgadmin_container             Running                                                                 0.0s
+ ✔ Container postgres_container            Running                                                                 0.0s
+ ✔ Container servicereg                    Started                                                                 4.3s
+ ✔ Container config-service-ms             Started                                                                 5.7s
+ ✔ Container gateway-ms                    Started                                                                 5.4s
+ ✔ Container jobms                         Started                                                                 7.8s
+ ✔ Container reviewms                      Started                                                                 7.7s
+ ✔ Container companyms                     Started                                                                 7.2s
+PS E:\spring-boot-projects\companyms\companyms>
+
+
+
+
+
+
