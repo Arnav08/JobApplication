@@ -31,8 +31,8 @@ services:
   - SPRING_PROFILES_ACTIVE=docker
   
  config-server-ms:
-  image: ashutoshd2/config-service-ms:latest
-  container_name: config-service-ms
+  image: ashutoshd2/config-server-ms:latest
+  container_name: config-server-ms
   ports:
   - "8080:8080"
   depends_on:
